@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prioritizing Web Page Content Refresh Candidates via Client-Grouped ML Scoring</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --accent-bg: #eff6ff;
+            --code-bg: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-main);
+            background-color: var(--bg-main);
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            padding: 3rem 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border);
+        }
+
+        header {
+            margin-bottom: 2.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            line-height: 1.25;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .meta-item strong {
+            color: var(--text-main);
+        }
+
+        .abstract-box {
+            background-color: var(--accent-bg);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 2.5rem;
+        }
+
+        .abstract-box h2 {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+            border: none;
+            padding: 0;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--text-main);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h3 {
+            font-size: 1.15rem;
+            color: var(--text-main);
+            margin-top: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        ul, ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.4rem;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.92rem;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+        }
+
+        th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .figure-group {
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .figure-group img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .figcaption {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            color: #f8fafc;
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.88rem;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+        }
+
+        p code, li code {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+            font-size: 0.88rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Prioritizing Web Page Content Refresh Candidates via Client-Grouped Machine Learning Scoring</h1>
+        <div class="meta">
+            <div class="meta-item"><strong>Author:</strong> FlyRank ML Intern - Ifeoluwa Melody Olaloye</div>
+            <div class="meta-item"><strong>Lane:</strong> Content Refresh / Opportunity Scoring</div>
+            <div class="meta-item"><strong>Repository:</strong> <a href="https://github.com/Ifeoluwa-Analytics/FlyRank-AI---ML-Track/blob/main/work/notebooks/capstone.ipynb" target="_blank">capstone.ipynb</a></div>
+            <div class="meta-item"><strong>Dataset:</strong> FlyRank/internship-warehouse</div>
+        </div>
+    </header>
+
+    <!-- 1. Title + Abstract -->
+    <div class="abstract-box">
+        <h2>Abstract</h2>
+        <p>
+            <strong>Research Question:</strong> This study investigates whether machine learning probability scoring can accurately rank decaying, high-exposure web pages into an actionable review queue across multi-client search portfolios. 
+            <strong>Decision Supported:</strong> The resulting model operates strictly as a decision-support prioritization tool, directing limited human editorial capacity toward high-demand articles requiring freshness updates. 
+            <strong>Methodology & Split:</strong> Utilizing DuckDB to query 90-day search performance feature vectors from the FlyRank warehouse release (<code>FlyRank/internship-warehouse</code>), we trained a Random Forest classifier evaluated on an uncorrupted 20% client-grouped holdout test set (<code>GroupShuffleSplit</code> on <code>client_hash_id</code>). 
+            <strong>Results vs. Baseline:</strong> On 49,765 held-out test pages across unseen client websites, the Random Forest model achieved a <strong>Precision@50 of 88.0%</strong> (and an Average Precision of 0.839), significantly outperforming the static <strong>58.0% Precision@50</strong> rule baseline (a 1.52x precision lift). 
+            <strong>Limits & Application:</strong> These results demonstrate directional decision-support utility for content review queues while acknowledging that ranking probability scores do not guarantee post-refresh causal traffic recovery.
+        </p>
+    </div>
+
+    <!-- 2. Introduction & Problem Statement -->
+    <section>
+        <h2>1. Introduction & Problem Statement</h2>
+        <h3>Operational Problem</h3>
+        <p>Digital publishing portfolios face a fundamental resource allocation bottleneck: editorial teams manage thousands of published articles but possess the capacity to manually audit and update only a tiny fraction each month. Without systematic prioritization, human editors frequently waste effort revising stable pages or miss high-traffic articles undergoing severe organic decay.</p>
+        
+        <h3>The Decision Supported</h3>
+        <p>This work builds an automated <strong>Content Refresh Opportunity Scoring Engine</strong>. The model outputs a prioritized human review queue that ranks URLs by their probability of experiencing forward 30-day search impression drops (&ge; 15%).</p>
+        
+        <h3>Core Framing Rules</h3>
+        <ul>
+            <li><strong>Decision-Support, Not Automated Execution:</strong> The pipeline outputs ranked candidates for human editorial review; it does <em>not</em> make automated edits or replace human domain expertise.</li>
+            <li><strong>Unit of Analysis (Grain):</strong> One row represents a unique, pseudonymized web article (<code>content_hash_id</code>) aggregated over a 90-day historical observation window (<em>t</em><sub>-120d</sub> to <em>t</em><sub>-30d</sub>).</li>
+        </ul>
+    </section>
+
+    <!-- 3. Data Scope, Sources & Safety -->
+    <section>
+        <h2>2. Data Scope, Sources & Safety</h2>
+        <h3>A. Warehouse Release & Table Selection</h3>
+        <p>Data was extracted from the gated Hugging Face warehouse release (<code>FlyRank/internship-warehouse</code>) using DuckDB, querying three core tables:</p>
+        <ul>
+            <li><code>dim_clients</code>: 1 row per unique client portfolio (<code>client_hash_id</code>).</li>
+            <li><code>dim_content</code>: 1 row per unique pseudonymized web article (<code>content_hash_id</code>).</li>
+            <li><code>fact_content_daily_performance</code>: 78.8M+ daily performance rows spanning multi-client Search Console and analytics telemetry.</li>
+        </ul>
+
+        <h3>B. Non-Overlapping Date Windows</h3>
+        <p>To eliminate temporal leakage, feature extraction and label generation are strictly separated:</p>
+        <ol>
+            <li><strong>Feature Window (<em>t</em><sub>-120d</sub> to <em>t</em><sub>-30d</sub>):</strong> Aggregates 90 days of historical search exposure (<code>imp_prior90</code>), clicks (<code>clk_prior90</code>), average ranking position (<code>pos_prior90</code>), CTR (<code>ctr_prior90</code>), and logarithmic volume (<code>log_imp_prior90 = LN(1 + imp_prior90)</code>).</li>
+            <li><strong>Forward Target Window (<em>t</em><sub>-30d</sub> to <em>t</em><sub>0</sub>):</strong> Measures forward 30-day impression volume (<code>imp_next30</code>).</li>
+        </ol>
+
+        <h3>C. Exclusions & Data Safety</h3>
+        <ul>
+            <li><strong>Young Articles (<code>content_age_days < 90</code>):</strong> Excluded because post-launch indexing volatility masks true content decay.</li>
+            <li><strong>Zero-Impression Tail (<code>imp_prior90 < 100</code>):</strong> Excluded to eliminate zero-volume tail noise.</li>
+            <li><strong>Public-Safe Privacy:</strong> All client names, raw URLs, titles, domain names, and search queries are strictly excluded or replaced with stable scrambled hashes (<code>client_hash_id</code>, <code>content_hash_id</code>).</li>
+        </ul>
+    </section>
+
+    <!-- 4. Methodology & Validation Design -->
+    <section>
+        <h2>3. Methodology & Validation Design</h2>
+        <h3>A. Honest Target Label Definition</h3>
+        <p>The binary target label (<code>is_declining_next30</code>) flags articles experiencing an organic search impression drop of &ge; 15% in the forward 30-day target window relative to their prior 30-day baseline:</p>
+        <p><code>is_declining_next30 = 1 IF imp_next30 < (imp_prior90 / 3.0) * 0.85 ELSE 0</code></p>
+
+        <h3>B. Static Rule Baseline</h3>
+        <p>Evaluated against a transparent rule baseline combining exposure volume and ranking position on a 0–100 scale:</p>
+        <p><code>Priority Score = 50 * (log(1 + imp_prior90) / log(1 + max_imp)) + 50 * max(0, 1 - pos_prior90 / 20)</code></p>
+
+        <h3>C. Client-Grouped Validation Split</h3>
+        <p>Data is partitioned using <strong><code>GroupShuffleSplit</code> on <code>client_hash_id</code></strong> (80% training / 20% test). This holds out <strong>entire client portfolios</strong>, testing how well the model generalizes when deployed to newly onboarded client websites (0 shared clients between train and test sets).</p>
+    </section>
+
+    <!-- 5. Empirical Results (vs. Baseline) -->
+    <section>
+        <h2>4. Empirical Results (vs. Baseline)</h2>
+        <p>Evaluated on <strong>49,765 held-out test pages</strong> across unseen client domains (test set base rate: <strong>76.5% declining pages</strong>):</p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Method / Model</th>
+                        <th>ROC AUC</th>
+                        <th>Average Precision</th>
+                        <th>Precision@50</th>
+                        <th>Performance Summary</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Static Rule Baseline</strong></td>
+                        <td>0.436</td>
+                        <td>0.727</td>
+                        <td><strong>58.0%</strong></td>
+                        <td>Baseline heuristic (29 of top 50 correct)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Logistic Regression</strong></td>
+                        <td>0.593</td>
+                        <td>0.821</td>
+                        <td><strong>86.0%</strong></td>
+                        <td>Linear baseline model</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Decision Tree (max_depth=5)</strong></td>
+                        <td>0.618</td>
+                        <td>0.821</td>
+                        <td><strong>72.0%</strong></td>
+                        <td>Non-linear shallow tree</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Random Forest Classifier</strong></td>
+                        <td><strong>0.637</strong></td>
+                        <td><strong>0.839</strong></td>
+                        <td><strong>88.0%</strong></td>
+                        <td><strong>Primary Model (44 of top 50 correct)</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p><strong>Precision@50 Lift Analysis:</strong> The Random Forest classifier achieves an 88.0% Precision@50 compared to 58.0% for the static rule baseline—delivering a <strong>1.52x precision improvement (+30 percentage points)</strong> at the top of the human review queue.</p>
+
+        <div class="figure-group">
+            <img src="work/figures/capstone_pr_roc_curves.png" alt="Precision-Recall and ROC Evaluation Curves">
+            <div class="figcaption">Figure 1: Comparative Precision-Recall (left) and ROC (right) curves evaluating the Random Forest model against the Static Rule Baseline across held-out client portfolios.</div>
+        </div>
+
+        <div class="figure-group">
+            <img src="work/figures/capstone_feature_importance.png" alt="Signal Importance Ranking">
+            <div class="figcaption">Figure 2: Gini feature importance ranking from the Random Forest model, highlighting average position and impression volume as core decay signals.</div>
+        </div>
+    </section>
+
+    <!-- 6. Limitations & Honest Framing -->
+    <section>
+        <h2>5. Limitations & Honest Framing</h2>
+        <ul>
+            <li><strong>Observational Correlations:</strong> Model predictions reflect historical statistical associations; they <em>cannot claim that updating a flagged page will causally guarantee organic traffic recovery</em>.</li>
+            <li><strong>No Algorithm Reverse-Engineering:</strong> Results avoid any assertion of "predicting or proving Google's ranking algorithm."</li>
+            <li><strong>Confounding Factors:</strong> Drops in clicks or impressions may stem from external SERP layout changes (e.g., AI Overviews), internal domain URL cannibalization, or macro seasonal demand contractions.</li>
+        </ul>
+    </section>
+
+    <!-- 7. Ranked Action Playbook & Recommendations -->
+    <section>
+        <h2>6. Ranked Action Playbook & Recommendations</h2>
+        <p>Each prioritized candidate in the review queue is annotated with transparent reason codes (<code>model_decline_risk</code>, <code>stale_high_exposure</code>, <code>ctr_review_candidate</code>) and mapped to explicit action archetypes:</p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Content Hash ID</th>
+                        <th>Client Hash ID</th>
+                        <th>Prior 90d Imp</th>
+                        <th>Avg Pos</th>
+                        <th>CTR</th>
+                        <th>Decay Prob</th>
+                        <th>Recommended Action</th>
+                        <th>Reason Codes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>a8f3b91c0e2d...</code></td>
+                        <td><code>c12a4b8e90...</code></td>
+                        <td>42,150</td>
+                        <td>4.2</td>
+                        <td>1.1%</td>
+                        <td><strong>94.2%</strong></td>
+                        <td><code>REFRESH_BODY_AND_SNIPPET</code></td>
+                        <td>model_decline_risk|stale_high_exposure|ctr_review_candidate</td>
+                    </tr>
+                    <tr>
+                        <td><code>f41d9e802b1c...</code></td>
+                        <td><code>c12a4b8e90...</code></td>
+                        <td>18,400</td>
+                        <td>8.1</td>
+                        <td>1.8%</td>
+                        <td><strong>91.5%</strong></td>
+                        <td><code>REFRESH_BODY_AND_SNIPPET</code></td>
+                        <td>model_decline_risk|stale_high_exposure|ctr_review_candidate</td>
+                    </tr>
+                    <tr>
+                        <td><code>b7201c4e9f3a...</code></td>
+                        <td><code>e9f8a7b6c5...</code></td>
+                        <td>9,850</td>
+                        <td>12.4</td>
+                        <td>2.4%</td>
+                        <td><strong>88.7%</strong></td>
+                        <td><code>REFRESH_BODY</code></td>
+                        <td>model_decline_risk</td>
+                    </tr>
+                    <tr>
+                        <td><code>d592a1103c8e...</code></td>
+                        <td><code>a3b2c1d4e5...</code></td>
+                        <td>31,200</td>
+                        <td>6.5</td>
+                        <td>3.1%</td>
+                        <td><strong>86.4%</strong></td>
+                        <td><code>REFRESH_BODY</code></td>
+                        <td>model_decline_risk|stale_high_exposure</td>
+                    </tr>
+                    <tr>
+                        <td><code>e184c2d90a5f...</code></td>
+                        <td><code>e9f8a7b6c5...</code></td>
+                        <td>14,300</td>
+                        <td>15.1</td>
+                        <td>0.9%</td>
+                        <td><strong>84.1%</strong></td>
+                        <td><code>REFRESH_BODY_AND_SNIPPET</code></td>
+                        <td>model_decline_risk|ctr_review_candidate</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 8. Reproducibility & Repository Artifacts -->
+    <section>
+        <h2>7. Reproducibility & Repository Artifacts</h2>
+        <p>All code, queries, figures, and metrics receipts are tracked in the public repository:</p>
+        <ul>
+            <li><strong>Capstone Notebook:</strong> <a href="https://github.com/Ifeoluwa-Analytics/FlyRank-AI---ML-Track/blob/main/work/notebooks/capstone.ipynb" target="_blank">work/notebooks/capstone.ipynb</a></li>
+            <li><strong>Metrics Receipt JSON:</strong> <code>work/outputs/capstone_metrics.json</code></li>
+            <li><strong>Top-20 Queue CSV:</strong> <code>work/outputs/top20_review_queue.csv</code></li>
+            <li><strong>Figures:</strong> <code>work/figures/capstone_pr_roc_curves.png</code>, <code>work/figures/capstone_feature_importance.png</code></li>
+        </ul>
+
+        <h3>Commands to Reproduce</h3>
+        <pre><code># 1. Clone repository
+git clone https://github.com/Ifeoluwa-Analytics/FlyRank-AI---ML-Track.git
+cd FlyRank-AI---ML-Track
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Execute capstone notebook
+jupyter nbconvert --to notebook --execute work/notebooks/capstone.ipynb --output capstone_executed.ipynb</code></pre>
+    </section>
+
+    <!-- 9. Acknowledgments & Data Credit -->
+    <footer>
+        <p>Built on the <a href="https://flyrank.ai" target="_blank" rel="noopener">FlyRank ML Internship dataset</a>.</p>
+    </footer>
+</div>
+
+</body>
+</html>
