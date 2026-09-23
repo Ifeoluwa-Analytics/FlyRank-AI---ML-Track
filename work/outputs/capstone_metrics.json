@@ -1,0 +1,20 @@
+{
+  "assignment": "capstone",
+  "dataset": "FlyRank/internship-warehouse",
+  "validation_discipline": "Client-Grouped Split (GroupShuffleSplit)",
+  "test_rows_evaluated": 49765,
+  "test_base_rate_pct": 76.5,
+  "results": {
+    "static_rule_baseline": {
+      "precision_at_50": 0.58,
+      "avg_precision": 0.727,
+      "roc_auc": 0.436
+    },
+    "random_forest": {
+      "precision_at_50": 0.88,
+      "avg_precision": 0.839,
+      "roc_auc": 0.637
+    }
+  },
+  "data_attribution": "Built on the FlyRank ML Internship dataset (https://flyrank.ai)"
+}
